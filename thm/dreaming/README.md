@@ -8,8 +8,8 @@ For the authorized Dreaming lab only; see the root [usage notice](../../README.m
 
 ## Setup and run
 You only need to install uv and that's all.
-- [linux]: `bash curl -LsSf https://astral.sh/uv/install.sh | sh`
-- [windows]: `pwsh powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+- linux: `bash curl -LsSf https://astral.sh/uv/install.sh | sh`
+- windows: `pwsh powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
 In a separate terminal, start a listener (the following syntax works with OpenBSD Netcat).
 
