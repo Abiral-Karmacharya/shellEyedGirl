@@ -1,4 +1,3 @@
-#!/bin/python
 import argparse
 import os
 import re
@@ -34,7 +33,7 @@ def create_session(ip) -> requests.Session:
     payload = {
         "cont1": "password",
         "bogus": "",
-        "submit": "Log in",  # '+' decodes to a space
+        "submit": "Log in",
     }
     res = session.post(url=url, data=payload)
     if res.status_code != 200:
@@ -67,20 +66,21 @@ def clean_up(file_name: str):
 
 
 def get_tun0() -> str:
-    process = subprocess.run("ifconfig", capture_output=True, text=True, check=False)
-    ifconfig_output = process.stdout
+    import platform
 
-    # Extract the IPv4 address specifically following 'tun0' and 'inet'
-    match = re.search(
-        r"tun0:.*?\binet\s+([0-9]{1,3}(?:\.[0-9]{1,3}){3})",
-        ifconfig_output,
-        re.DOTALL,
-    )
+    if platform.system() == "Windows":
+        cmd = "ipconfig"
+        pattern = r"PPP adapter.*?IPv4 Address.*?:\s+([0-9]{1,3}(?:\.[0-9]{1,3}){3})"
+    else:
+        cmd = "ifconfig"
+        pattern = r"tun0:.*?\binet\s+([0-9]{1,3}(?:\.[0-9]{1,3}){3})"
 
-    tun0_ip = match.group(1) if match else None
-    if tun0_ip is None:
-        raise ValueError("Interface 'tun0' not found. Ensure VPN/tunnel is active.")
-    return str(tun0_ip)
+    process = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    match = re.search(pattern, process.stdout, re.DOTALL)
+
+    if not match:
+        raise ValueError("VPN interface not found. Is your VPN active?")
+    return match.group(1)
 
 
 def main():
@@ -117,6 +117,7 @@ def main():
     except subprocess.CalledProcessError as e:
         print(f"{e.cmd}: {e.stderr}")
         sys.exit(e.returncode)
+
 
 if __name__ == "__main__":
     main()
